@@ -1,455 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webinar Platform</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; color:#333;}
-        .container{max-width:1200px;margin:0 auto;padding:20px;}
-        header{background:white;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:30px;border-radius:10px;text-align:center;}
-        header h1{color:#667eea;font-size:28px;margin-bottom:15px;}
-        .user-info {font-size: 14px;color: #764ba2;margin-top: 10px;}
-        nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
-        nav button{padding:10px 20px;border:none;border-radius:5px;background:#667eea;color:white;cursor:pointer;font-size:14px;transition:0.3s;}
-        nav button:hover{background:#764ba2;}
-        .btn-prev{background:#fff;color:#667eea;border:2px solid #667eea;}
-        .btn-prev:hover{background:#f0f0f0;}
-        .main-content{display:none;}
-        .main-content.active{display:block;}
-        .login-container{background:white;padding:50px;border-radius:10px;max-width:500px;margin:50px auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);}
-        .login-container h2{color:#667eea;margin-bottom:30px;text-align:center;}
-        .role-buttons{display:flex;gap:20px;justify-content:center;margin-bottom:30px;}
-        .role-btn{flex:1;padding:20px;border:2px solid #667eea;border-radius:8px;background:white;color:#667eea;cursor:pointer;font-size:16px;font-weight:bold;transition:0.3s;}
-        .role-btn:hover{background:#667eea;color:white;}
-        .form-group{margin-bottom:20px;}
-        .form-group label{display:block;margin-bottom:8px;font-weight:600;color:#333;}
-        .form-group input,.form-group textarea,.form-group select{width:100%;padding:12px;border:1px solid #ddd;border-radius:5px;font-size:14px;font-family:inherit;}
-        .form-group textarea{resize:vertical;min-height:100px;}
-        .btn{width:100%;padding:12px;border:none;border-radius:5px;cursor:pointer;font-size:16px;font-weight:600;transition:0.3s;margin-bottom:10px;}
-        .btn-primary{background:#667eea;color:white;}
-        .btn-primary:hover{background:#764ba2;}
-        .btn-secondary{background:#6c757d;color:white;}
-        .btn-secondary:hover{background:#5a6268;}
-        .btn-danger{background:#dc3545;color:white;}
-        .btn-danger:hover{background:#c82333;}
-        .dashboard{background:white;padding:30px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:30px;}
-        .dashboard h2{color:#667eea;margin-bottom:20px;border-bottom:2px solid #667eea;padding-bottom:10px;}
-        .webinar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-top:20px;}
-        .webinar-card{background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);transition:0.3s;border:1px solid #eee;}
-        .webinar-card:hover{transform:translateY(-5px);box-shadow:0 5px 20px rgba(0,0,0,0.15);}
-        .webinar-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;}
-        .webinar-header h3{margin-bottom:10px;}
-        .webinar-category{display:inline-block;background:rgba(255,255,255,0.3);padding:5px 10px;border-radius:20px;font-size:12px;}
-        .webinar-body{padding:20px;}
-        .webinar-body p{color:#666;margin-bottom:10px;font-size:14px;line-height:1.5;}
-        .webinar-meta{margin:15px 0;padding:15px;background:#f5f5f5;border-radius:5px;font-size:13px;}
-        .webinar-meta div{margin:5px 0;}
-        .webinar-footer{padding:15px 20px;border-top:1px solid #eee;display:flex;gap:10px;flex-wrap:wrap;}
-        .filter-section{background:white;padding:20px;border-radius:8px;margin-bottom:20px;display:flex;gap:15px;flex-wrap:wrap;}
-        .filter-section input, .filter-section select{padding:10px;border:1px solid #ddd;border-radius:5px;flex:1;min-width:200px;}
-        .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:30px;}
-        .stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:20px;border-radius:8px;text-align:center;}
-        .stat-card h3{font-size:32px;margin-bottom:5px;}
-        .stat-card p{font-size:14px;}
-        .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);align-items:center;justify-content:center;}
-        .modal.active{display:flex;}
-        .modal-content{background:white;padding:30px;border-radius:10px;max-width:600px;max-height:90vh;overflow-y:auto;width:90%;}
-        .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #667eea;padding-bottom:15px;}
-        .modal-header h2{color:#667eea;}
-        .close-btn{background:none;border:none;font-size:28px;cursor:pointer;color:#667eea;}
-        .empty-message{text-align:center;color:#999;padding:40px 20px;}
-        .btn-small{padding:8px 12px;font-size:13px;}
-        @media(max-width:768px){.login-container{padding:30px 20px;}
-            .webinar-grid{grid-template-columns:1fr;}
-            header h1{font-size:20px;}
-            .role-buttons{flex-direction:column;}
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>🎓 Webinar Platform</h1>
-            <div id="userInfoDisplay" class="user-info"></div>
-            <nav id="navButtons" style="display: none;">
-                <button class="btn-prev" onclick="goBack()">Previous Page</button>
-                <button onclick="logout()">Logout</button>
-            </nav>
-        </header>
-        <div id="roleSelectionPage" class="main-content active">
-            <div class="login-container">
-                <h2>Select Your Role</h2>
-                <div class="role-buttons">
-                    <button class="role-btn" onclick="showAdminLogin()">👨‍💼 Admin</button>
-                    <button class="role-btn" onclick="showUserLogin()">👤 User</button>
-                </div>
-            </div>
-        </div>
-        <div id="adminLoginPage" class="main-content">
-            <div class="login-container">
-                <h2>Admin Login</h2>
-                <form id="adminLoginForm" onsubmit="adminLogin(event)">
-                    <div class="form-group">
-                        <label>User ID:</label>
-                        <input type="text" id="adminId" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password:</label>
-                        <input type="password" id="adminPassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
-                    <button type="button" class="btn btn-back" onclick="backToRoleSelection()">Back</button>
-                </form>
-            </div>
-        </div>
-        <div id="userLoginPage" class="main-content">
-            <div class="login-container">
-                <h2>User Login</h2>
-                <form id="userLoginForm" onsubmit="userLogin(event)">
-                    <div class="form-group">
-                        <label>User ID:</label>
-                        <input type="text" id="userId" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Password:</label>
-                        <input type="password" id="userPassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
-                    <button type="button" class="btn btn-back" onclick="backToRoleSelection()">Back</button>
-                </form>
-            </div>
-        </div>
-        <div id="adminDashboard" class="main-content">
-            <div class="stats">
-                <div class="stat-card"><h3 id="totalWebinars">5</h3><p>Total Webinars</p></div>
-                <div class="stat-card"><h3 id="totalRegistrations">0</h3><p>Total Registrations</p></div>
-                <div class="stat-card"><h3 id="upcomingCount">5</h3><p>Upcoming Events</p></div>
-            </div>
-            <div class="dashboard">
-                <h2>Create New Webinar</h2>
-                <form id="webinarForm" onsubmit="addWebinar(event)">
-                    <div class="form-group"><label>Webinar Title:</label><input type="text" id="webinarTitle" required></div>
-                    <div class="form-group"><label>Description:</label><textarea id="webinarDesc" required></textarea></div>
-                    <div class="form-group"><label>Speaker Name:</label><input type="text" id="speakerName" required></div>
-                    <div class="form-group"><label>Speaker Bio:</label><textarea id="speakerBio" required></textarea></div>
-                    <div class="form-group"><label>Category:</label>
-                        <select id="webinarCategory" required>
-                            <option value="">Select Category</option>
-                            <option value="Technology">Technology</option>
-                            <option value="Web Development">Web Development</option>
-                            <option value="Data Science">Data Science</option>
-                            <option value="Security">Security</option>
-                            <option value="Cloud">Cloud</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><label>Date:</label><input type="date" id="webinarDate" required></div>
-                    <div class="form-group"><label>Time:</label><input type="time" id="webinarTime" required></div>
-                    <div class="form-group"><label>Duration (minutes):</label><input type="number" id="webinarDuration" min="30" required></div>
-                    <button type="submit" class="btn btn-primary">Create Webinar</button>
-                </form>
-            </div>
-            <div class="dashboard">
-                <h2>Manage Webinars</h2>
-                <div id="adminWebinarsList" class="webinar-grid"></div>
-            </div>
-        </div>
-        <div id="userDashboard" class="main-content">
-            <div class="dashboard">
-                <h2>Available Webinars</h2>
-                <div class="filter-section">
-                    <input type="text" id="searchInput" placeholder="Search webinars..." onkeyup="filterWebinars()">
-                    <select id="categoryFilter" onchange="filterWebinars()">
-                        <option value="">All Categories</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Web Development">Web Development</option>
-                        <option value="Data Science">Data Science</option>
-                        <option value="Security">Security</option>
-                        <option value="Cloud">Cloud</option>
-                    </select>
-                </div>
-                <div id="userWebinarsList" class="webinar-grid"></div>
-            </div>
-            <div class="dashboard">
-                <h2>My Registrations</h2>
-                <div id="userRegistrations" class="webinar-grid"></div>
-            </div>
-        </div>
-    </div>
-    <div id="registrationModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Register for Webinar</h2>
-                <button class="close-btn" onclick="closeRegistrationModal()">&times;</button>
-            </div>
-            <form onsubmit="submitRegistration(event)">
-                <div class="form-group"><label>Full Name:</label><input type="text" id="userName" required></div>
-                <div class="form-group"><label>Email:</label><input type="email" id="userEmail" required></div>
-                <div class="form-group"><label>Organization:</label><input type="text" id="userOrg" required></div>
-                <button type="submit" class="btn btn-primary">Register</button>
-                <button type="button" class="btn btn-secondary" onclick="closeRegistrationModal()">Cancel</button>
-            </form>
-        </div>
-    </div>
-    <div id="detailsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="detailsTitle"></h2>
-                <button class="close-btn" onclick="closeDetailsModal()">&times;</button>
-            </div>
-            <div id="detailsContent"></div>
-        </div>
-    </div>
-    <script>
-        let webinars = [
-            { id: 1, title: "Introduction to Machine Learning", description: "Learn the fundamentals of machine learning and its applications", speaker: "Dr. Sarah Johnson", speakerBio: "AI researcher with 10+ years experience", date: "2025-11-15", time: "14:00", duration: 120, category: "Technology", status: "upcoming", registeredUsers: 45, materials: [] },
-            { id: 2, title: "Web Development Best Practices", description: "Master modern web development techniques and frameworks", speaker: "Prof. John Smith", speakerBio: "Full-stack developer and educator", date: "2025-11-20", time: "10:00", duration: 90, category: "Web Development", status: "upcoming", registeredUsers: 32, materials: [] },
-            { id: 3, title: "Data Science Fundamentals", description: "Explore data analysis, visualization, and interpretation", speaker: "Dr. Emily Chen", speakerBio: "Data scientist with Fortune 500 experience", date: "2025-11-10", time: "16:00", duration: 100, category: "Data Science", status: "upcoming", registeredUsers: 58, materials: [] },
-            { id: 4, title: "Cybersecurity Essentials", description: "Understand security threats and defensive strategies", speaker: "Mr. Alex Rodriguez", speakerBio: "Cybersecurity expert and certified trainer", date: "2025-11-25", time: "15:00", duration: 110, category: "Security", status: "upcoming", registeredUsers: 27, materials: [] },
-            { id: 5, title: "Cloud Computing Basics", description: "Introduction to AWS, Azure, and Google Cloud platforms", speaker: "Ms. Lisa Wang", speakerBio: "Cloud architect and DevOps specialist", date: "2025-11-12", time: "11:00", duration: 95, category: "Cloud", status: "upcoming", registeredUsers: 41, materials: [] }
-        ];
-        const adminAccounts={"123":"123","admin":"password"};
-        const userAccounts={"2400080163":"123","user1":"password"};
-        let userRegistrations = [];
-        let currentWebinarId = null, currentUser = null, pageHistory = [];
-        function showPage(pageId){
-            document.querySelectorAll('.main-content').forEach(p=>p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            if(!pageHistory.length||pageHistory[pageHistory.length-1]!==pageId){pageHistory.push(pageId);}
-        }
-        function showAdminLogin(){showPage('adminLoginPage');}
-        function showUserLogin(){showPage('userLoginPage');}
-        function backToRoleSelection(){showPage('roleSelectionPage');}
-        function showAdminDashboard(){
-            showPage('adminDashboard');
-            document.getElementById('userInfoDisplay').textContent=`👨‍💼 Admin: ${currentUser.id}`;
-            document.getElementById('navButtons').style.display='flex';
-            updateAdminDashboard();
-        }
-        function showUserDashboard(){
-            showPage('userDashboard');
-            document.getElementById('userInfoDisplay').textContent=`👤 User ID: ${currentUser.id}`;
-            document.getElementById('navButtons').style.display='flex';
-            displayUserWebinars();
-        }
-        function logout(){
-            document.getElementById('adminDashboard').classList.remove('active');
-            document.getElementById('userDashboard').classList.remove('active');
-            document.getElementById('roleSelectionPage').classList.add('active');
-            document.getElementById('userInfoDisplay').textContent = '';
-            document.getElementById('navButtons').style.display = 'none';
-            document.getElementById('adminLoginForm').reset();
-            document.getElementById('userLoginForm').reset();
-            currentUser = null;
-            userRegistrations = [];
-            pageHistory = [];
-        }
-        function goBack(){
-            if(pageHistory.length>1){
-                pageHistory.pop();
-                let prev=pageHistory[pageHistory.length-1];
-                showPage(prev);
-            }
-        }
-        function adminLogin(event){
-            event.preventDefault();
-            const adminId=document.getElementById('adminId').value,adminPassword=document.getElementById('adminPassword').value;
-            if(adminAccounts[adminId]&&adminAccounts[adminId]===adminPassword){
-                currentUser={type:'admin',id:adminId};
-                showAdminDashboard();
-            }else alert('❌ Invalid Admin ID or Password');
-        }
-        function userLogin(event){
-            event.preventDefault();
-            const userId=document.getElementById('userId').value,userPassword=document.getElementById('userPassword').value;
-            if(userAccounts[userId]&&userAccounts[userId]===userPassword){
-                currentUser={type:'user',id:userId};
-                showUserDashboard();
-            }else alert('❌ Invalid User ID or Password');
-        }
-        function updateAdminDashboard(){
-            document.getElementById('totalWebinars').textContent=webinars.length;
-            document.getElementById('totalRegistrations').textContent=webinars.reduce((sum,w)=>sum+w.registeredUsers,0);
-            document.getElementById('upcomingCount').textContent=webinars.filter(w=>w.status==="upcoming").length;
-            displayAdminWebinars();
-        }
-        function addWebinar(event){
-            event.preventDefault();
-            const newWebinar={
-                id:Math.max(...webinars.map(w=>w.id),0)+1,
-                title:document.getElementById('webinarTitle').value,
-                description:document.getElementById('webinarDesc').value,
-                speaker:document.getElementById('speakerName').value,
-                speakerBio:document.getElementById('speakerBio').value,
-                date:document.getElementById('webinarDate').value,
-                time:document.getElementById('webinarTime').value,
-                duration:parseInt(document.getElementById('webinarDuration').value),
-                category:document.getElementById('webinarCategory').value,
-                status:'upcoming',registeredUsers:0,materials:[]
-            };
-            webinars.push(newWebinar);document.getElementById('webinarForm').reset();
-            updateAdminDashboard();alert('✅ Webinar created successfully!');
-        }
-        function displayAdminWebinars(){
-            const c=document.getElementById('adminWebinarsList');
-            if(webinars.length===0){c.innerHTML='<div class="empty-message"><p>No webinars created yet</p></div>';return;}
-            c.innerHTML=webinars.map(w=>`
-                <div class="webinar-card">
-                    <div class="webinar-header"><h3>${w.title}</h3>
-                        <span class="webinar-category">${w.category}</span></div>
-                    <div class="webinar-body">
-                        <p>${w.description}</p>
-                        <div class="webinar-meta">
-                            <div><strong>Speaker:</strong> ${w.speaker}</div>
-                            <div><strong>Date:</strong> ${w.date} at ${w.time}</div>
-                            <div><strong>Duration:</strong> ${w.duration} min</div>
-                            <div><strong>Registrations:</strong> ${w.registeredUsers}</div>
-                            <div><strong>Status:</strong> ${w.status}</div>
-                        </div>
-                    </div>
-                    <div class="webinar-footer">
-                        <button class="btn btn-primary btn-small" onclick="editWebinar(${w.id})">Edit</button>
-                        <button class="btn btn-danger btn-small" onclick="deleteWebinar(${w.id})">Delete</button>
-                        <button class="btn btn-secondary btn-small" onclick="viewDetails(${w.id})">Details</button>
-                    </div>
-                </div>`
-            ).join('');
-        }
-        function displayUserWebinars(){
-            filterWebinars();
-            displayUserRegistrations();
-        }
-        function filterWebinars(){
-            const s=document.getElementById('searchInput').value.toLowerCase(),cat=document.getElementById('categoryFilter').value;
-            const filtered=webinars.filter(w=>(w.title.toLowerCase().includes(s)||w.description.toLowerCase().includes(s))&&(cat===''||w.category===cat));
-            const c=document.getElementById('userWebinarsList');
-            if(filtered.length===0){c.innerHTML='<div class="empty-message"><p>No webinars found</p></div>';return;}
-            c.innerHTML=filtered.map(w=>`
-                <div class="webinar-card">
-                    <div class="webinar-header"><h3>${w.title}</h3>
-                        <span class="webinar-category">${w.category}</span></div>
-                    <div class="webinar-body">
-                        <p>${w.description}</p>
-                        <div class="webinar-meta">
-                            <div><strong>Speaker:</strong> ${w.speaker}</div>
-                            <div><strong>Date:</strong> ${w.date}</div>
-                            <div><strong>Time:</strong> ${w.time}</div>
-                            <div><strong>Duration:</strong> ${w.duration} min</div>
-                            <div><strong>Registered:</strong> ${w.registeredUsers} participants</div>
-                        </div>
-                    </div>
-                    <div class="webinar-footer">
-                        <button class="btn btn-primary btn-small" onclick="openRegistrationModal(${w.id})">Register</button>
-                        <button class="btn btn-secondary btn-small" onclick="viewDetails(${w.id})">Details</button>
-                    </div>
-                </div>`
-            ).join('');
-        }
-        function openRegistrationModal(webinarId){
-            currentWebinarId=webinarId;
-            document.getElementById('registrationModal').classList.add('active');
-        }
-        function closeRegistrationModal(){
-            document.getElementById('registrationModal').classList.remove('active');
-            currentWebinarId=null;
-        }
-        function submitRegistration(event){
-            event.preventDefault();
-            const r={
-                webinarId:currentWebinarId,
-                name:document.getElementById('userName').value,
-                email:document.getElementById('userEmail').value,
-                organization:document.getElementById('userOrg').value,
-                registrationDate:new Date().toLocaleDateString()
-            };
-            userRegistrations.push(r);
-            const w=webinars.find(x=>x.id===currentWebinarId);if(w){w.registeredUsers++;}
-            closeRegistrationModal();
-            document.getElementById('registrationModal').querySelector('form').reset();
-            alert('✅ Registration successful!');
-            displayUserRegistrations();
-        }
-        function displayUserRegistrations() {
-            const c = document.getElementById('userRegistrations');
-            if(userRegistrations.length === 0) {
-                c.innerHTML = '<div class="empty-message"><p>No registrations yet</p></div>';
-                return;
-            }
-            c.innerHTML = userRegistrations.map((reg, idx) => {
-                const w = webinars.find(x => x.id === reg.webinarId);
-                return `<div class="webinar-card">
-                    <div class="webinar-header">
-                        <h3>${w.title}</h3>
-                        <span class="webinar-category">${w.category}</span>
-                    </div>
-                    <div class="webinar-body">
-                        <div class="webinar-meta">
-                            <div><strong>Your Name:</strong> ${reg.name}</div>
-                            <div><strong>Email:</strong> ${reg.email}</div>
-                            <div><strong>Organization:</strong> ${reg.organization}</div>
-                            <div><strong>Registered:</strong> ${reg.registrationDate}</div>
-                            <div><strong>Event Date:</strong> ${w.date} at ${w.time}</div>
-                            <div><strong>Duration:</strong> ${w.duration} min</div>
-                        </div>
-                    </div>
-                    <div class="webinar-footer">
-                        <button class="btn btn-danger btn-small" onclick="unregisterEvent(${reg.webinarId},'${reg.email}')">Unregister</button>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-        function unregisterEvent(webinarId, email){
-            if(confirm('Are you sure you want to unregister for this event?')) {
-                userRegistrations = userRegistrations.filter(
-                    reg => !(reg.webinarId === webinarId && reg.email === email)
-                );
-                const w = webinars.find(x => x.id === webinarId);
-                if(w && w.registeredUsers > 0){w.registeredUsers--;}
-                displayUserRegistrations();
-                filterWebinars();
-                alert('✅ You have unregistered from the event.');
-            }
-        }
-        function viewDetails(webinarId){
-            const w=webinars.find(x=>x.id===webinarId);
-            if(!w)return;
-            document.getElementById('detailsTitle').textContent=w.title;
-            document.getElementById('detailsContent').innerHTML=`
-                <div class="webinar-meta" style="font-size:16px;">
-                    <div><strong>Category:</strong> ${w.category}</div>
-                    <div><strong>Description:</strong></div>
-                    <p style="margin:10px 0;">${w.description}</p>
-                    <div><strong>Speaker:</strong> ${w.speaker}</div>
-                    <div><strong>Speaker Bio:</strong></div>
-                    <p style="margin:10px 0;">${w.speakerBio}</p>
-                    <div><strong>Date:</strong> ${w.date}</div>
-                    <div><strong>Time:</strong> ${w.time}</div>
-                    <div><strong>Duration:</strong> ${w.duration} minutes</div>
-                    <div><strong>Status:</strong> ${w.status}</div>
-                    <div><strong>Registered Participants:</strong> ${w.registeredUsers}</div>
-                </div>
-            `;
-            document.getElementById('detailsModal').classList.add('active');
-        }
-        function closeDetailsModal(){
-            document.getElementById('detailsModal').classList.remove('active');
-        }
-        function editWebinar(webinarId){
-            alert('Edit feature - Webinar ID: ' + webinarId);
-        }
-        function deleteWebinar(webinarId){
-            if(confirm('Are you sure you want to delete this webinar?')){
-                webinars=webinars.filter(w=>w.id!==webinarId);
-                updateAdminDashboard();
-                alert('✅ Webinar deleted successfully!');
-            }
-        }
-        window.onclick=function(event){
-            if(event.target===document.getElementById('registrationModal'))closeRegistrationModal();
-            if(event.target===document.getElementById('detailsModal'))closeDetailsModal();
-        };
-        showPage('roleSelectionPage');
-    </script>
+<option value="Technology">Technology</option>
+<option value="Web Development">Web Development</option>
+<option value="Data Science">Data Science</option>
+<option value="Security">Security</option>
+<option value="Cloud">Cloud</option>
+</select>
+</div>
+<div class="form-group"><label>Date:</label><input type="date" id="webinarDate" required></div>
+<div class="form-group"><label>Time:</label><input type="time" id="webinarTime" required></div>
+<div class="form-group"><label>Duration (minutes):</label><input type="number" id="webinarDuration" min="30" required></div>
+<button type="submit" class="btn btn-primary">Create Webinar</button>
+</form>
+</div>
+<div class="dashboard">
+<h2>Manage Webinars</h2>
+<div id="adminWebinarsList" class="webinar-grid"></div>
+</div>
+</div>
+<div id="userDashboard" class="main-content">
+<div class="dashboard">
+<h2>Available Webinars</h2>
+<div class="filter-section">
+<input type="text" id="searchInput" placeholder="Search webinars..." onkeyup="filterWebinars()">
+<select id="categoryFilter" onchange="filterWebinars()">
+<option value="">All Categories</option>
+<option value="Technology">Technology</option>
+<option value="Web Development">Web Development</option>
+<option value="Data Science">Data Science</option>
+<option value="Security">Security</option>
+<option value="Cloud">Cloud</option>
+</select>
+</div>
+<div id="userWebinarsList" class="webinar-grid"></div>
+</div>
+<div class="dashboard">
+<h2>My Registrations</h2>
+<div id="userRegistrations" class="webinar-grid"></div>
+</div>
+</div>
+</div>
+<div id="registrationModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2>Register for Webinar</h2>
+<button class="close-btn" onclick="closeRegistrationModal()">&times;</button>
+</div>
+<form onsubmit="submitRegistration(event)">
+<div class="form-group"><label>Full Name:</label><input type="text" id="userName" required></div>
+<div class="form-group"><label>Email:</label><input type="email" id="userEmail" required></div>
+<div class="form-group"><label>Organization:</label><input type="text" id="userOrg" required></div>
+<button type="submit" class="btn btn-primary">Register</button>
+<button type="button" class="btn btn-secondary" onclick="closeRegistrationModal()">Cancel</button>
+</form>
+</div>
+</div>
+<div id="detailsModal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2 id="detailsTitle"></h2>
+<button class="close-btn" onclick="closeDetailsModal()">&times;</button>
+</div>
+<div id="detailsContent"></div>
+</div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
