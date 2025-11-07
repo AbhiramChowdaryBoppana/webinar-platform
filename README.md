@@ -36,5 +36,16 @@ It allows **Admins** to create and manage webinars, while **Users** can browse, 
 
 ---
 
-## 🗂️ Project Structure
+💡 Future Improvements
+Persistent storage (e.g., localStorage or backend API)
+Editable webinar details for admin
+Email notification for registrations
+Integration with Zoom/Meet APIs
+Search and sort improvements
 
+
+
+👨‍💻 Author
+Abhiram Chowdary Boppana
+📧 abhirambchowdary@gmail.com
+🌐 https://github.com/AbhiramChowdaryBoppana
